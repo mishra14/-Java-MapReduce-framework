@@ -4,12 +4,12 @@
      <display-name>HW3 (Master)</display-name>
      
      <servlet>
-         <servlet-name>MasterServlet</servlet-name>
+         <servlet-name>master</servlet-name>
          <servlet-class>edu.upenn.cis455.mapreduce.master.MasterServlet</servlet-class>
      </servlet>
 
      <servlet-mapping>
-         <servlet-name>MasterServlet</servlet-name>
+         <servlet-name>master</servlet-name>
          <url-pattern>/*</url-pattern>
      </servlet-mapping>
 </web-app>
