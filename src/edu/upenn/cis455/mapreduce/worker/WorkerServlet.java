@@ -46,6 +46,29 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	public void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws java.io.IOException
+	{
+		System.out.println("worker : post received");
+		String pathInfo = request.getPathInfo();
+		StringBuilder pageContent = new StringBuilder();
+		if (pathInfo.equalsIgnoreCase("/runmap")) // homepage
+		{
+			System.out.println("worker : /runmap received");
+			synchronized(status)
+			{
+				status.setJob(request.getParameter("job"));
+				status.setKeysRead("0");
+				status.setKeysWritten("0");
+				status.setStatus(WorkerStatus.statusType.mapping);
+			}
+		}
+		response.setContentType("text/html");
+		PrintWriter out = response.getWriter();
+		out.print("<html>" + pageContent.toString() + "</html>");
+		response.flushBuffer();
+	}
+	
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws java.io.IOException
 	{
