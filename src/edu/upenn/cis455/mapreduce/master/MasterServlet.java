@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.servlet.*;
 import javax.servlet.http.*;
 
@@ -134,6 +133,7 @@ public class MasterServlet extends HttpServlet
 			// check if the current job is done
 			// if done then assign the next job, if any
 			// else do nothing
+			System.out.println("master : "+"Updated worker - " + workerStatus.toString());
 			pageContent.append("Updated worker - " + workerStatus.toString());
 		}
 		else
