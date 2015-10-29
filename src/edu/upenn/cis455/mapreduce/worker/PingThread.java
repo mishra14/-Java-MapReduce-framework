@@ -42,7 +42,7 @@ public class PingThread extends Thread
 			try
 			{
 				socket = new Socket(host, port);
-				HttpResponse response =  sendPing();
+				HttpResponse response = sendPing();
 				// System.out.println("ping thread : Response - " + response);
 			}
 			catch (IOException e)
@@ -84,7 +84,7 @@ public class PingThread extends Thread
 		String url = masterUrl + "?port=" + selfPort + "&status=" + status
 				+ "&keysread=" + keysRead + "&keyswritten=" + keysWritten
 				+ "&job=" + job;
-		System.out.println("worker : url - "+url);
+		System.out.println("worker : url - " + url);
 		clientSocketOut.print("GET " + url + " HTTP/1.0\r\n");
 		clientSocketOut.print("\r\n");
 		clientSocketOut.flush();

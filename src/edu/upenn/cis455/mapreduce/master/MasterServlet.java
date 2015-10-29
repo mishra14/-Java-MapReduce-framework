@@ -8,8 +8,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.servlet.*;
 import javax.servlet.http.*;
 
 import edu.upenn.cis455.mapreduce.worker.HttpResponse;
@@ -60,12 +58,12 @@ public class MasterServlet extends HttpServlet
 			Job newJob = new Job(jobName, inputDirectory, outputDirectory,
 					mapThreads, reduceThreads);
 			jobQueue.enqueue(newJob);
-			// TODO - start a job at this point and go back to /status
 			if (jobQueue.getSize() == 1)
 			{
 				// start this job as this is the only job
 				assignJob();
 			}
+			response.sendRedirect("/master/status");
 
 		}
 		PrintWriter out = response.getWriter();
@@ -138,6 +136,34 @@ public class MasterServlet extends HttpServlet
 			else if (type == WorkerStatus.statusType.waiting)
 			{
 				// check if all current job workers have moved to waiting
+
+				// check if any job is running
+				Job firstJob = (jobQueue.getSize() > 0) ? jobQueue.getQueue()
+						.get(0) : null;
+				if (firstJob != null && firstJob.getWorkers() != null
+						&& job.equals(firstJob.getJobName()))
+				{
+					boolean stillWorking = false;
+					// a job is running; check if it's map phase is done
+					for (String workerName : firstJob.getWorkers())
+					{
+						WorkerStatus worker = workers.get(workerName);
+						if (worker != null
+								&& worker.getStatus() != WorkerStatus.statusType.waiting)
+						{
+							stillWorking = true;
+							break;
+						}
+					}
+					if (!stillWorking)
+					{
+						// this job's map phase is done
+						// assign reduce
+						sendJob(false, firstJob);
+					}
+				}
+				// else do nothing
+
 			}
 			// check if the current job is done
 			// if done then assign the next job, if any
@@ -277,7 +303,7 @@ public class MasterServlet extends HttpServlet
 				}
 			}
 			String body = "job=" + jobName + "&" + "input=" + inputDirectory
-					+ "&" + "numthreads=" + numThreads + "&" + "numworkers"
+					+ "&" + "numthreads=" + numThreads + "&" + "numworkers="
 					+ numWorkers + "&" + workerString.toString();
 			for (String worker : job.getWorkers())
 			{
@@ -291,7 +317,8 @@ public class MasterServlet extends HttpServlet
 						new OutputStreamWriter(socket.getOutputStream()));
 				clientSocketOut.print("POST " + url.toString()
 						+ " HTTP/1.0\r\n");
-				clientSocketOut.print("Content-Length:" + body.length()+"\r\n");
+				clientSocketOut.print("Content-Length:" + body.length()
+						+ "\r\n");
 				clientSocketOut
 						.print("Content-Type:application/x-www-form-urlencoded\r\n");
 				clientSocketOut.print("\r\n");
@@ -303,7 +330,7 @@ public class MasterServlet extends HttpServlet
 				if (!response.getResponseCode().equalsIgnoreCase("200"))
 				{
 					System.out.println("Master : worker " + worker
-							+ "did not accept the job");
+							+ "did not accept the map job");
 				}
 				else
 				{
@@ -314,7 +341,55 @@ public class MasterServlet extends HttpServlet
 		}
 		else
 		{
-			// TODO code for /runreduce
+			List<String> updatedWorkers = new ArrayList<String>();
+			String jobName = job.getJobName();
+			String outputDirectory = job.getOutputDirectory();
+			String numThreads = job.getMapThreads();
+			StringBuilder workerString = new StringBuilder();
+			for (int i = 0; i < job.getWorkers().size(); i++)
+			{
+				workerString.append("worker" + (i + 1) + "="
+						+ job.getWorkers().get(i));
+				if (i < job.getWorkers().size() - 1)
+				{
+					workerString.append("&");
+				}
+			}
+			String body = "job=" + jobName + "&" + "output=" + outputDirectory
+					+ "&" + "numthreads=" + numThreads;
+			for (String worker : job.getWorkers())
+			{
+				String workerUrl = "http://" + worker + "/worker/runreduce";
+				URL url = new URL(workerUrl);
+				String host = url.getHost();
+				int port = url.getPort() == -1 ? url.getDefaultPort() : url
+						.getPort();
+				socket = new Socket(host, port);
+				PrintWriter clientSocketOut = new PrintWriter(
+						new OutputStreamWriter(socket.getOutputStream()));
+				clientSocketOut.print("POST " + url.toString()
+						+ " HTTP/1.0\r\n");
+				clientSocketOut.print("Content-Length:" + body.length()
+						+ "\r\n");
+				clientSocketOut
+						.print("Content-Type:application/x-www-form-urlencoded\r\n");
+				clientSocketOut.print("\r\n");
+				clientSocketOut.print(body);
+				clientSocketOut.print("\r\n");
+				clientSocketOut.print("\r\n");
+				clientSocketOut.flush();
+				HttpResponse response = parseResponse();
+				if (!response.getResponseCode().equalsIgnoreCase("200"))
+				{
+					System.out.println("Master : worker " + worker
+							+ "did not accept the reduce job");
+				}
+				else
+				{
+					updatedWorkers.add(worker);
+				}
+			}
+			job.setWorkers(updatedWorkers);
 		}
 	}
 
@@ -396,15 +471,15 @@ public class MasterServlet extends HttpServlet
 		}
 		return response;
 	}
-	
-/*	public static void main(String[] args) throws IOException
-	{
-		Job job = new Job("new job","/input","/output","2","5");
-		ArrayList<String> jobWorker = new ArrayList<String>();
-		jobWorker.add("127.0.0.1:8080");
-		job.setWorkers(jobWorker);
-		MasterServlet master = new MasterServlet();
-		System.out.println("Sending job - "+job+"\nto -"+jobWorker);
-		master.sendJob(true, job);
-	}*/
+
+	/*	public static void main(String[] args) throws IOException
+		{
+			Job job = new Job("new job","/input","/output","2","5");
+			ArrayList<String> jobWorker = new ArrayList<String>();
+			jobWorker.add("127.0.0.1:8080");
+			job.setWorkers(jobWorker);
+			MasterServlet master = new MasterServlet();
+			System.out.println("Sending job - "+job+"\nto -"+jobWorker);
+			master.sendJob(true, job);
+		}*/
 }
