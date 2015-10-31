@@ -1,0 +1,1 @@
+sort -k 1 -t \t *.txt | sort -m
