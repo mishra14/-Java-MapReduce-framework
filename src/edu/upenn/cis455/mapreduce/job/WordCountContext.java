@@ -1,8 +1,11 @@
 package edu.upenn.cis455.mapreduce.job;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.nio.channels.FileLock;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -85,12 +88,8 @@ public class WordCountContext implements Context
 				// find the worker based on hash
 				int index = hash.multiply(workerCount).divide(max).intValue();
 				// write to correct file
-				FileWriter fileWriter = new FileWriter(spoolOutDir + "/"
-						+ workers.get(index), true);
-				fileWriter.append(key + "\t" + value + "\r\n");
-				fileWriter.close();
-				System.out.println("writing - " + key + "\t" + value + " to "
-						+ spoolOutDir + "/" + workers.get(index));
+				synchronizedWrite(spoolOutDir + "/" + workers.get(index), key,
+						value);
 				synchronized (status)
 				{
 					// update status for the ping thread
@@ -117,13 +116,7 @@ public class WordCountContext implements Context
 		{
 			try
 			{
-				// write to correct file
-				FileWriter fileWriter = new FileWriter(outputDir + "/output",
-						true);
-				fileWriter.append(key + "\t" + value + "\r\n");
-				fileWriter.close();
-				System.out.println("writing - " + key + "\t" + value + " to "
-						+ outputDir + "/output");
+				synchronizedWrite(outputDir + "/output", key, value);
 			}
 			catch (IOException e)
 			{
@@ -151,5 +144,24 @@ public class WordCountContext implements Context
 		encrypt.update(key.getBytes());
 		BigInteger result = new BigInteger(1, encrypt.digest());
 		return result;
+	}
+
+	/**
+	 * synchronized method to ensure appends are done one after another
+	 * 
+	 * @param filePath
+	 * @param key
+	 * @param value
+	 * @throws IOException
+	 */
+	private synchronized static void synchronizedWrite(String filePath,
+			String key, String value) throws IOException
+	{
+		// write to correct file
+		FileWriter fileWriter = new FileWriter(filePath, true);
+		fileWriter.append(key + "\t" + value + "\r\n");
+		fileWriter.close();
+		System.out.println("writing - " + key + "\t" + value + " to "
+				+ filePath);
 	}
 }

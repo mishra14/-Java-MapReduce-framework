@@ -258,8 +258,9 @@ public class MasterServlet extends HttpServlet
 	{
 		StringBuilder pageContent = new StringBuilder();
 
-		pageContent.append("<head><title>Master</title></head>"
-				+ "<body><h2>Master Servlet status page </h2><br><br>");
+		pageContent
+				.append("<head><title>Master</title></head>"
+						+ "<body><h2>Master Servlet status page - Ankit Mishra    mankit</h2><br>");
 		pageContent.append("Submit new map reduce job - <br><br>"
 				+ "<form action=\"/master/newjob\" method=\"post\">"
 				+ "Job class name:<br>"
