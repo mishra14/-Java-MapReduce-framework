@@ -62,7 +62,7 @@ public class ReduceThread extends Thread
 								+ workerServlet.getCurrentJob()
 										.getOutputDirectory());
 						WordCountContext context = new WordCountContext(null,
-								null, outputDir.getAbsolutePath(), false);
+								null, outputDir.getAbsolutePath(), false, null);
 						job.reduce(key, values, context);
 						synchronized (workerServlet.getStatus())
 						{

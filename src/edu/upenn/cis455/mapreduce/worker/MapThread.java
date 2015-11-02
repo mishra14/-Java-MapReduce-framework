@@ -57,17 +57,10 @@ public class MapThread extends Thread
 								+ "/spoolout");
 						WordCountContext context = new WordCountContext(
 								workerServlet.getCurrentJob().getWorkers(),
-								spoolOutDir.getAbsolutePath(), null, true);
+								spoolOutDir.getAbsolutePath(), null, true,
+								workerServlet.getStatus());
 						job.map(key, value, context);
-						synchronized (workerServlet.getStatus())
-						{
-							// update status for the ping thread
-							int count = Integer.valueOf(workerServlet
-									.getStatus().getKeysWritten());
-							count++;
-							workerServlet.getStatus().setKeysWritten(
-									"" + (count));
-						}
+
 					}
 					catch (ClassNotFoundException e)
 					{

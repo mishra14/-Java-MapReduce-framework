@@ -1,24 +1,26 @@
-Full name:  ______________
-SEAS login: ______________
+Full name:  Ankit Mishra
+SEAS login: mankit
 
 Which features did you implement? 
-  (list features, or write 'Entire assignment')
+  Entire assignment
 
 Did you complete any extra-credit tasks? If so, which ones?
-  (list extra-credit tasks)
+  NA
 
 Any special instructions for building and running your solution?
-  (include detailed instructions, or write 'None')
+  build using sudo
+  master url - http://ip:port/master/status
+  worker url - http://ip:port/worker/
 
 Did you personally write _all_ the code you are submitting
 (other than code from the course web page)?
-  [ ] Yes
+  [x] Yes
   [ ] No
 
 Did you copy any code from the Internet, or from classmates?
   [ ] Yes
-  [ ] No
+  [x] No
 
 Did you collaborate with anyone on this assignment?
   [ ] Yes
-  [ ] No
+  [x] No

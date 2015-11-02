@@ -341,6 +341,7 @@ public class MasterServlet extends HttpServlet
 			for (String worker : job.getWorkers())
 			{
 				String workerUrl = "http://" + worker + "/worker/runmap";
+				System.out.println("master : sending map request to - "+workerUrl);
 				URL url = new URL(workerUrl);
 				String host = url.getHost();
 				int port = url.getPort() == -1 ? url.getDefaultPort() : url
@@ -378,21 +379,13 @@ public class MasterServlet extends HttpServlet
 			String jobName = job.getJobName();
 			String outputDirectory = job.getOutputDirectory();
 			String numThreads = job.getMapThreads();
-			StringBuilder workerString = new StringBuilder();
-			for (int i = 0; i < job.getWorkers().size(); i++)
-			{
-				workerString.append("worker" + (i + 1) + "="
-						+ job.getWorkers().get(i));
-				if (i < job.getWorkers().size() - 1)
-				{
-					workerString.append("&");
-				}
-			}
+			
 			String body = "job=" + jobName + "&" + "output=" + outputDirectory
 					+ "&" + "numthreads=" + numThreads;
 			for (String worker : job.getWorkers())
 			{
 				String workerUrl = "http://" + worker + "/worker/runreduce";
+				System.out.println("master : sending reduce request to - "+workerUrl);
 				URL url = new URL(workerUrl);
 				String host = url.getHost();
 				int port = url.getPort() == -1 ? url.getDefaultPort() : url

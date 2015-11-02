@@ -8,6 +8,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import edu.upenn.cis455.mapreduce.Context;
+import edu.upenn.cis455.mapreduce.master.WorkerStatus;
 
 /**
  * This class is an implementation of context interface for the wordcount
@@ -27,6 +28,7 @@ public class WordCountContext implements Context
 	private String spoolOutDir;
 	private String outputDir;
 	private boolean isMap;
+	private WorkerStatus status;
 
 	/**
 	 * constructor to pass the needed information to the context
@@ -37,7 +39,7 @@ public class WordCountContext implements Context
 	 * @param isMap
 	 */
 	public WordCountContext(List<String> workers, String spoolOutDir,
-			String outputDir, boolean isMap)
+			String outputDir, boolean isMap, WorkerStatus status)
 	{
 		this.workers = workers;
 		if (workers != null)
@@ -47,6 +49,7 @@ public class WordCountContext implements Context
 		this.spoolOutDir = spoolOutDir;
 		this.outputDir = outputDir;
 		this.isMap = isMap;
+		this.status = status;
 	}
 
 	@Override
@@ -68,6 +71,13 @@ public class WordCountContext implements Context
 				fileWriter.close();
 				System.out.println("writing - " + key + "\t" + value + " to "
 						+ spoolOutDir + "/" + workers.get(index));
+				synchronized (status)
+				{
+					// update status for the ping thread
+					int count = Integer.valueOf(status.getKeysWritten());
+					count++;
+					status.setKeysWritten("" + (count));
+				}
 			}
 			catch (NoSuchAlgorithmException e)
 			{

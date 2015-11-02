@@ -2,9 +2,11 @@ package edu.upenn.cis455.mapreduce.master;
 
 import java.util.List;
 
+import edu.upenn.cis455.mapreduce.master.WorkerStatus.statusType;
+
 /**
- * This class is a bean class to hold all the information about the job
- * created by the user from the UI.
+ * This class is a bean class to hold all the information about the job created
+ * by the user from the UI.
  * 
  * pageContent.append("creating new job with following params - <br>
  * " + "Job : " + request.getParameter("job") + "<br>
@@ -25,6 +27,7 @@ public class Job
 	private String mapThreads;
 	private String reduceThreads;
 	private List<String> workers;
+	private statusType status;
 
 	public Job(String jobName, String inputDirectory, String outputDirectory,
 			String mapThreads, String reduceThreads)
@@ -36,6 +39,7 @@ public class Job
 		this.mapThreads = mapThreads;
 		this.reduceThreads = reduceThreads;
 		this.workers = null;
+		this.status = statusType.idle;
 	}
 
 	public String getJobName()
@@ -98,13 +102,23 @@ public class Job
 		this.workers = workers;
 	}
 
+	public statusType getStatus()
+	{
+		return status;
+	}
+
+	public void setStatus(statusType status)
+	{
+		this.status = status;
+	}
+
 	@Override
 	public String toString()
 	{
 		return "Job [jobName=" + jobName + ", inputDirectory=" + inputDirectory
 				+ ", outputDirectory=" + outputDirectory + ", mapThreads="
 				+ mapThreads + ", reduceThreads=" + reduceThreads
-				+ ", workers=" + workers + "]";
+				+ ", workers=" + workers + ", status=" + status + "]";
 	}
 
 }

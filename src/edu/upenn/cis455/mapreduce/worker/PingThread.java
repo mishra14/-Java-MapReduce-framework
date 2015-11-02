@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.upenn.cis455.mapreduce.master.WorkerStatus;
+import edu.upenn.cis455.mapreduce.master.WorkerStatus.statusType;
 
 /**
  * This class is used to instantiate a pinger thread used by the worker servlet
@@ -42,24 +43,26 @@ public class PingThread extends Thread
 	{
 		while (run)
 		{
-			System.out.println("ping thread : pinging master");
-			String host = masterUrl.getHost();
-			int port = masterUrl.getPort() == -1 ? masterUrl.getDefaultPort()
-					: masterUrl.getPort();
 			try
 			{
-				socket = new Socket(host, port);
-				HttpResponse response = sendPing();
-				// System.out.println("ping thread : Response - " + response);
-			}
-			catch (IOException e)
-			{
-				System.out
-						.println("IOException while opening socket to master");
-				e.printStackTrace();
-			}
-			try
-			{
+				System.out.println("ping thread : pinging master");
+				String host = masterUrl.getHost();
+				int port = masterUrl.getPort() == -1 ? masterUrl
+						.getDefaultPort() : masterUrl.getPort();
+				try
+				{
+					socket = new Socket(host, port);
+					HttpResponse response = sendPing();
+					// System.out.println("ping thread : Response - " +
+					// response);
+				}
+				catch (IOException e)
+				{
+					System.out
+							.println("IOException while opening socket to master");
+					e.printStackTrace();
+				}
+
 				sleep(10000);
 			}
 			catch (InterruptedException e)
@@ -181,25 +184,4 @@ public class PingThread extends Thread
 	{
 		run = false;
 	}
-
-	/*public static void main(String[] args)
-	{
-		WorkerStatus status = new WorkerStatus("8080", "NA", "0", "0",
-				WorkerStatus.statusType.idle);
-		URL masterUrl;
-		PingThread ping;
-		try
-		{
-			masterUrl = new URL("http://" + "127.0.0.1:8080"
-					+ "/master/workerStatus");
-			ping = new PingThread(masterUrl, status);
-			ping.start();
-		}
-		catch (MalformedURLException e)
-		{
-			System.out
-					.println("URL exception in worker servlet while creating ping thread");
-			e.printStackTrace();
-		}
-	}*/
 }

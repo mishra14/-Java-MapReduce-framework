@@ -46,4 +46,11 @@ public class Queue<T>
 		}
 	}
 
+	@Override
+	public String toString()
+	{
+		return "Queue [queue=" + queue + "]";
+	}
+	
+
 }
