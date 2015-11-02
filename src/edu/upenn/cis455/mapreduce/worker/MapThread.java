@@ -1,11 +1,16 @@
 package edu.upenn.cis455.mapreduce.worker;
 
 import java.io.File;
-
 import edu.upenn.cis455.mapreduce.Job;
-import edu.upenn.cis455.mapreduce.job.WordCount;
 import edu.upenn.cis455.mapreduce.job.WordCountContext;
 
+/**
+ * This is a map thread that is instantiated by the worker servlet to perform
+ * the map job on key value inputs
+ * 
+ * @author cis455
+ *
+ */
 public class MapThread extends Thread
 {
 	private int id;
@@ -34,10 +39,19 @@ public class MapThread extends Thread
 							+ ", value - " + value);
 					try
 					{
+						synchronized (workerServlet.getStatus())
+						{
+							// update status for the ping thread
+							int count = Integer.valueOf(workerServlet
+									.getStatus().getKeysRead());
+							count++;
+							workerServlet.getStatus().setKeysRead("" + (count));
+						}
 						String className = workerServlet.getCurrentJob()
 								.getJobName();
+						// TODO generalize class
 						Class<?> jobClass = Class.forName(className);
-						Job job = new WordCount();
+						Job job = (Job) jobClass.newInstance();
 						File spoolOutDir = new File(workerServlet
 								.getStorageDir().getAbsolutePath()
 								+ "/spoolout");
@@ -45,6 +59,15 @@ public class MapThread extends Thread
 								workerServlet.getCurrentJob().getWorkers(),
 								spoolOutDir.getAbsolutePath(), null, true);
 						job.map(key, value, context);
+						synchronized (workerServlet.getStatus())
+						{
+							// update status for the ping thread
+							int count = Integer.valueOf(workerServlet
+									.getStatus().getKeysWritten());
+							count++;
+							workerServlet.getStatus().setKeysWritten(
+									"" + (count));
+						}
 					}
 					catch (ClassNotFoundException e)
 					{
@@ -52,18 +75,18 @@ public class MapThread extends Thread
 								.println("worker map thread : Exception while instantiating job class");
 						e.printStackTrace();
 					}
-					/*					catch (InstantiationException e)
-										{
-											System.out
-													.println("worker map thread : Exception while instantiating job class");
-											e.printStackTrace();
-										}
-										catch (IllegalAccessException e)
-										{
-											System.out
-													.println("worker map thread : Exception while instantiating job class");
-											e.printStackTrace();
-										}*/
+					catch (InstantiationException e)
+					{
+						System.out
+								.println("worker map thread : Exception while instantiating job class");
+						e.printStackTrace();
+					}
+					catch (IllegalAccessException e)
+					{
+						System.out
+								.println("worker map thread : Exception while instantiating job class");
+						e.printStackTrace();
+					}
 
 				}
 				else

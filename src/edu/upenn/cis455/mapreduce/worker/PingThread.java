@@ -15,6 +15,13 @@ import java.util.Map;
 
 import edu.upenn.cis455.mapreduce.master.WorkerStatus;
 
+/**
+ * This class is used to instantiate a pinger thread used by the worker servlet
+ * to send status updates to the master
+ * 
+ * @author cis455
+ *
+ */
 public class PingThread extends Thread
 {
 	private URL masterUrl;

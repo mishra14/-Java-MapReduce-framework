@@ -2,6 +2,13 @@ package edu.upenn.cis455.mapreduce.master;
 
 import java.util.Date;
 
+/**
+ * This is a bean class to hold all the information about a worker. This class
+ * is used by the master.
+ * 
+ * @author cis455
+ *
+ */
 public class WorkerStatus
 {
 	public static enum statusType

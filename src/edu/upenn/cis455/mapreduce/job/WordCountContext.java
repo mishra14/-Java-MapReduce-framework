@@ -9,6 +9,13 @@ import java.util.List;
 
 import edu.upenn.cis455.mapreduce.Context;
 
+/**
+ * This class is an implementation of context interface for the wordcount
+ * problem
+ * 
+ * @author cis455
+ *
+ */
 public class WordCountContext implements Context
 {
 
@@ -21,6 +28,14 @@ public class WordCountContext implements Context
 	private String outputDir;
 	private boolean isMap;
 
+	/**
+	 * constructor to pass the needed information to the context
+	 * 
+	 * @param workers
+	 * @param spoolOutDir
+	 * @param outputDir
+	 * @param isMap
+	 */
 	public WordCountContext(List<String> workers, String spoolOutDir,
 			String outputDir, boolean isMap)
 	{

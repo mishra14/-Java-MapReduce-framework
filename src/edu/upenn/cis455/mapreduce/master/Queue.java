@@ -3,7 +3,7 @@ package edu.upenn.cis455.mapreduce.master;
 import java.util.ArrayList;
 
 /**
- * queue class
+ * generic blocking queue implementation to hold different types of data
  * 
  * @author cis455
  *

@@ -5,6 +5,13 @@ import java.util.HashMap;
 import edu.upenn.cis455.mapreduce.Context;
 import edu.upenn.cis455.mapreduce.Job;
 
+/**
+ * This class in an implementation of the Job interface to perform the task of
+ * finding the count of the words in the input
+ * 
+ * @author cis455
+ *
+ */
 public class WordCount implements Job
 {
 	private HashMap<String, Integer> counts;

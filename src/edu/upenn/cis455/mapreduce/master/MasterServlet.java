@@ -9,8 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.*;
-
 import edu.upenn.cis455.mapreduce.worker.HttpResponse;
+
+/**
+ * This class is master servlet class that is responsible for receiving jobs
+ * from the user interface and pass the jobs to the workers
+ * 
+ * @author cis455
+ *
+ */
 
 public class MasterServlet extends HttpServlet
 {
@@ -26,6 +33,7 @@ public class MasterServlet extends HttpServlet
 
 	public void init()
 	{
+		System.out.println("Master servlet ready");
 		workers = new HashMap<String, WorkerStatus>();
 		jobQueue = new Queue<Job>();
 	}
@@ -55,6 +63,24 @@ public class MasterServlet extends HttpServlet
 					+ "Map Threads : " + request.getParameter("mapthreads")
 					+ "<br>" + "Reduce Threads : "
 					+ request.getParameter("reducethreads") + "<br>");
+			if (!inputDirectory.startsWith("/"))
+			{
+				inputDirectory = "/" + inputDirectory;
+			}
+			if (inputDirectory.endsWith("/"))
+			{
+				inputDirectory = inputDirectory.substring(0,
+						inputDirectory.length() - 1);
+			}
+			if (!outputDirectory.startsWith("/"))
+			{
+				outputDirectory = "/" + outputDirectory;
+			}
+			if (outputDirectory.endsWith("/"))
+			{
+				outputDirectory = outputDirectory.substring(0,
+						outputDirectory.length() - 1);
+			}
 			Job newJob = new Job(jobName, inputDirectory, outputDirectory,
 					mapThreads, reduceThreads);
 			jobQueue.enqueue(newJob);
@@ -135,6 +161,7 @@ public class MasterServlet extends HttpServlet
 			}
 			else if (type == WorkerStatus.statusType.waiting)
 			{
+				System.out.println("master : waiting received");
 				// check if all current job workers have moved to waiting
 
 				// check if any job is running
@@ -143,14 +170,20 @@ public class MasterServlet extends HttpServlet
 				if (firstJob != null && firstJob.getWorkers() != null
 						&& job.equals(firstJob.getJobName()))
 				{
+					System.out.println("master : job - " + firstJob);
 					boolean stillWorking = false;
 					// a job is running; check if it's map phase is done
 					for (String workerName : firstJob.getWorkers())
 					{
+						System.out.println("master : checking worker - "
+								+ workerName);
 						WorkerStatus worker = workers.get(workerName);
 						if (worker != null
 								&& worker.getStatus() != WorkerStatus.statusType.waiting)
 						{
+							System.out
+									.println("master : worker still working - "
+											+ workerName);
 							stillWorking = true;
 							break;
 						}

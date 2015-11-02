@@ -1,9 +1,11 @@
 package edu.upenn.cis455.mapreduce.master;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This class is a bean class to hold all the information about the job
+ * created by the user from the UI.
+ * 
  * pageContent.append("creating new job with following params - <br>
  * " + "Job : " + request.getParameter("job") + "<br>
  * " + "Input Directory : " + request.getParameter("inputdir") + "<br>

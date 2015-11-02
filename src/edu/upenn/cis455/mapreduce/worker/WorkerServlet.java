@@ -15,6 +15,13 @@ import edu.upenn.cis455.mapreduce.master.Job;
 import edu.upenn.cis455.mapreduce.master.Queue;
 import edu.upenn.cis455.mapreduce.master.WorkerStatus;
 
+/**
+ * This class is worker servlet class that is responsible for receiving jobs
+ * from the master and instantiate the threads for the job
+ * 
+ * @author cis455
+ *
+ */
 public class WorkerServlet extends HttpServlet
 {
 
@@ -38,15 +45,25 @@ public class WorkerServlet extends HttpServlet
 
 	public void init()
 	{
+		System.out.println("worker servlet started");
 		currentJob = null;
 		status = new WorkerStatus(getServletConfig().getInitParameter(
 				"selfport"), "NA", "0", "0", WorkerStatus.statusType.idle);
-		storageDir = new File(getServletConfig().getInitParameter("storagedir"));
+		String storageDirectory = getServletConfig().getInitParameter(
+				"storagedir");
+		if (storageDirectory.endsWith("/"))
+		{
+			storageDirectory = storageDirectory.substring(0,
+					storageDirectory.length() - 1);
+		}
+		System.out.println("worker : loading storage directory");
+		storageDir = new File(storageDirectory);
 		if (!storageDir.exists() || !storageDir.isDirectory())
 		{
 			storageDir.mkdirs();
 		}
-		System.out.println("worker servlet : status - " + status);
+		resetSpoolDirectories();
+		System.out.println("worker : status - " + status);
 		URL masterUrl;
 		try
 		{
@@ -110,7 +127,6 @@ public class WorkerServlet extends HttpServlet
 			}
 			// start map threads
 			lineQueue = new Queue<String>();
-			resetSpoolDirectories();
 			startMapThreads(threadCount);
 			// create a queue of each line of the input
 			File inputDir = new File(storageDir.getAbsolutePath()
@@ -141,11 +157,11 @@ public class WorkerServlet extends HttpServlet
 				{
 					// update status for the ping thread
 					status.setStatus(WorkerStatus.statusType.waiting);
-					// send ping to master
-					if (!pingThread.getState().equals(Thread.State.RUNNABLE))
-					{
-						pingThread.interrupt();
-					}
+				}
+				// send ping to master
+				if (!pingThread.getState().equals(Thread.State.RUNNABLE))
+				{
+					pingThread.interrupt();
 				}
 			}
 			// wait for map threads to finish
@@ -169,9 +185,12 @@ public class WorkerServlet extends HttpServlet
 			{
 				// update status for the ping thread
 				status.setStatus(WorkerStatus.statusType.reducing);
+				status.setKeysRead("0");
+				status.setKeysWritten("0");
 			}
 			// start map threads
 			lineQueue = new Queue<String>();
+			resetOutputDirectory();
 			startReduceThreads(threadCount);
 			// create a queue of each line of the input
 			File inputDir = new File(storageDir.getAbsolutePath() + "/spoolin");
@@ -193,16 +212,19 @@ public class WorkerServlet extends HttpServlet
 				// now when the queue is empty, turn off all map threads
 				setDoreduce(false);
 				waitForThreads(false);
+				resetSpoolDirectories();
+
 				// update status to waiting
 				synchronized (status)
 				{
 					// update status for the ping thread
 					status.setStatus(WorkerStatus.statusType.idle);
-					// send ping to master
-					if (!pingThread.getState().equals(Thread.State.RUNNABLE))
-					{
-						pingThread.interrupt();
-					}
+					status.setKeysRead("0");
+				}
+				// send ping to master
+				if (!pingThread.getState().equals(Thread.State.RUNNABLE))
+				{
+					pingThread.interrupt();
 				}
 			}
 		}
@@ -604,6 +626,7 @@ public class WorkerServlet extends HttpServlet
 
 	public void resetSpoolDirectories()
 	{
+		System.out.println("worker : reseting spool directories");
 		File spoolOutDir = new File(storageDir.getAbsolutePath() + "/spoolout");
 		if (spoolOutDir.exists())
 		{
@@ -636,6 +659,23 @@ public class WorkerServlet extends HttpServlet
 		if (!spoolInDir.exists() || !spoolInDir.isDirectory())
 		{
 			spoolInDir.mkdirs();
+		}
+	}
+
+	public void resetOutputDirectory()
+	{
+		System.out.println("worker : reseting output directory");
+		File outputDir = new File(getStorageDir().getAbsolutePath()
+				+ getCurrentJob().getOutputDirectory());
+		if (outputDir.exists())
+		{
+			if (outputDir.isDirectory())
+			{
+				for (File file : outputDir.listFiles())
+				{
+					file.delete();
+				}
+			}
 		}
 	}
 
