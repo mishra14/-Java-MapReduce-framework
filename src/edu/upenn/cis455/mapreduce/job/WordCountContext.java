@@ -12,31 +12,48 @@ import edu.upenn.cis455.mapreduce.master.WorkerStatus;
 
 /**
  * This class is an implementation of context interface for the wordcount
- * problem
- * 
- * @author cis455
+ * problem.
  *
+ * @author cis455
  */
 public class WordCountContext implements Context
 {
 
+	/** The max. */
 	private static BigInteger max = new BigInteger(
 			"1461501637330902918203684832716283019655932542975");
 
+	/** The workers. */
 	private List<String> workers;
+
+	/** The worker count. */
 	private BigInteger workerCount;
+
+	/** The spool out dir. */
 	private String spoolOutDir;
+
+	/** The output dir. */
 	private String outputDir;
+
+	/** The is map. */
 	private boolean isMap;
+
+	/** The status. */
 	private WorkerStatus status;
 
 	/**
-	 * constructor to pass the needed information to the context
-	 * 
+	 * constructor to pass the needed information to the context.
+	 *
 	 * @param workers
+	 *            the workers
 	 * @param spoolOutDir
+	 *            the spool out dir
 	 * @param outputDir
+	 *            the output dir
 	 * @param isMap
+	 *            the is map
+	 * @param status
+	 *            the status
 	 */
 	public WordCountContext(List<String> workers, String spoolOutDir,
 			String outputDir, boolean isMap, WorkerStatus status)
@@ -52,6 +69,9 @@ public class WordCountContext implements Context
 		this.status = status;
 	}
 
+	/* (non-Javadoc)
+	 * @see edu.upenn.cis455.mapreduce.Context#write(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void write(String key, String value)
 	{
@@ -115,6 +135,15 @@ public class WordCountContext implements Context
 
 	}
 
+	/**
+	 * Hash key.
+	 *
+	 * @param key
+	 *            the key
+	 * @return the big integer
+	 * @throws NoSuchAlgorithmException
+	 *             the no such algorithm exception
+	 */
 	public BigInteger hashKey(String key) throws NoSuchAlgorithmException
 	{
 		MessageDigest encrypt = MessageDigest.getInstance("SHA-1");

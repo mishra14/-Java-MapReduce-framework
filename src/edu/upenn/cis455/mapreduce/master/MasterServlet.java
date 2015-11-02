@@ -13,24 +13,35 @@ import edu.upenn.cis455.mapreduce.worker.HttpResponse;
 
 /**
  * This class is master servlet class that is responsible for receiving jobs
- * from the user interface and pass the jobs to the workers
- * 
- * @author cis455
+ * from the user interface and pass the jobs to the workers.
  *
+ * @author cis455
  */
 
 public class MasterServlet extends HttpServlet
 {
 
+	/** The Constant serialVersionUID. */
 	static final long serialVersionUID = 455555001;
+
+	/** The socket. */
 	private Socket socket;
+
+	/** The Constant css. */
 	private static final String css = "<head>" + "<style>" + "table, th, td {"
 			+ "    border: 1px solid black;" + "    border-collapse: collapse;"
 			+ "}" + "th, td {" + "    padding: 5px;" + "}" + "</style>"
 			+ "</head>";
+
+	/** The workers. */
 	private Map<String, WorkerStatus> workers;
+
+	/** The job queue. */
 	private Queue<Job> jobQueue;
 
+	/* (non-Javadoc)
+	 * @see javax.servlet.GenericServlet#init()
+	 */
 	public void init()
 	{
 		System.out.println("Master servlet ready");
@@ -38,6 +49,9 @@ public class MasterServlet extends HttpServlet
 		jobQueue = new Queue<Job>();
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws IOException
 	{
@@ -97,6 +111,9 @@ public class MasterServlet extends HttpServlet
 		response.flushBuffer();
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws java.io.IOException
 	{
@@ -218,6 +235,11 @@ public class MasterServlet extends HttpServlet
 		response.flushBuffer();
 	}
 
+	/**
+	 * Gets the home page.
+	 *
+	 * @return the home page
+	 */
 	private String getHomePage()
 	{
 		return "<head><title>Master</title></head>"
@@ -227,6 +249,11 @@ public class MasterServlet extends HttpServlet
 				+ "</body>";
 	}
 
+	/**
+	 * Gets the status page.
+	 *
+	 * @return the status page
+	 */
 	private String getStatusPage()
 	{
 		StringBuilder pageContent = new StringBuilder();
@@ -288,6 +315,12 @@ public class MasterServlet extends HttpServlet
 		return pageContent.toString();
 	}
 
+	/**
+	 * Assign job.
+	 *
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private void assignJob() throws IOException
 	{
 		if (jobQueue.getSize() > 0)
@@ -316,6 +349,16 @@ public class MasterServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Send job.
+	 *
+	 * @param isMap
+	 *            the is map
+	 * @param job
+	 *            the job
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public void sendJob(boolean isMap, Job job) throws IOException
 	{
 		if (isMap)
@@ -341,7 +384,8 @@ public class MasterServlet extends HttpServlet
 			for (String worker : job.getWorkers())
 			{
 				String workerUrl = "http://" + worker + "/worker/runmap";
-				System.out.println("master : sending map request to - "+workerUrl);
+				System.out.println("master : sending map request to - "
+						+ workerUrl);
 				URL url = new URL(workerUrl);
 				String host = url.getHost();
 				int port = url.getPort() == -1 ? url.getDefaultPort() : url
@@ -379,13 +423,14 @@ public class MasterServlet extends HttpServlet
 			String jobName = job.getJobName();
 			String outputDirectory = job.getOutputDirectory();
 			String numThreads = job.getMapThreads();
-			
+
 			String body = "job=" + jobName + "&" + "output=" + outputDirectory
 					+ "&" + "numthreads=" + numThreads;
 			for (String worker : job.getWorkers())
 			{
 				String workerUrl = "http://" + worker + "/worker/runreduce";
-				System.out.println("master : sending reduce request to - "+workerUrl);
+				System.out.println("master : sending reduce request to - "
+						+ workerUrl);
 				URL url = new URL(workerUrl);
 				String host = url.getHost();
 				int port = url.getPort() == -1 ? url.getDefaultPort() : url
@@ -419,6 +464,13 @@ public class MasterServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Parses the response.
+	 *
+	 * @return the http response
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public HttpResponse parseResponse() throws IOException
 	{
 		InputStream socketInputStream = socket.getInputStream();
@@ -435,11 +487,13 @@ public class MasterServlet extends HttpServlet
 	}
 
 	/**
-	 * parses the http response from the server into an HttpResponse object
-	 * 
+	 * parses the http response from the server into an HttpResponse object.
+	 *
 	 * @param in
-	 * @return
+	 *            the in
+	 * @return the http response
 	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public HttpResponse parseResponse(BufferedReader in) throws IOException
 	{
@@ -498,14 +552,4 @@ public class MasterServlet extends HttpServlet
 		return response;
 	}
 
-	/*	public static void main(String[] args) throws IOException
-		{
-			Job job = new Job("new job","/input","/output","2","5");
-			ArrayList<String> jobWorker = new ArrayList<String>();
-			jobWorker.add("127.0.0.1:8080");
-			job.setWorkers(jobWorker);
-			MasterServlet master = new MasterServlet();
-			System.out.println("Sending job - "+job+"\nto -"+jobWorker);
-			master.sendJob(true, job);
-		}*/
 }

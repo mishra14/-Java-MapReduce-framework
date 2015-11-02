@@ -17,32 +17,65 @@ import edu.upenn.cis455.mapreduce.master.WorkerStatus;
 
 /**
  * This class is worker servlet class that is responsible for receiving jobs
- * from the master and instantiate the threads for the job
- * 
- * @author cis455
+ * from the master and instantiate the threads for the job.
  *
+ * @author cis455
  */
 public class WorkerServlet extends HttpServlet
 {
 
+	/** The Constant serialVersionUID. */
 	static final long serialVersionUID = 455555002;
 
+	/**
+	 * The Enum statusType.
+	 */
 	public static enum statusType
 	{
-		mapping, waiting, reducing, idle
+
+		/** The mapping. */
+		mapping,
+		/** The waiting. */
+		waiting,
+		/** The reducing. */
+		reducing,
+		/** The idle. */
+		idle
 	};
 
+	/** The status. */
 	private WorkerStatus status;
+
+	/** The ping thread. */
 	private PingThread pingThread;
+
+	/** The current job. */
 	private Job currentJob;
+
+	/** The storage dir. */
 	private File storageDir;
+
+	/** The line queue. */
 	private Queue<String> lineQueue;
+
+	/** The do map. */
 	private boolean doMap;
+
+	/** The doreduce. */
 	private boolean doreduce;
+
+	/** The map threads. */
 	private List<Thread> mapThreads;
+
+	/** The reduce threads. */
 	private List<Thread> reduceThreads;
+
+	/** The socket. */
 	private Socket socket;
 
+	/* (non-Javadoc)
+	 * @see javax.servlet.GenericServlet#init()
+	 */
 	public void init()
 	{
 		System.out.println("worker servlet started");
@@ -83,6 +116,9 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doPost(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws java.io.IOException
 	{
@@ -236,6 +272,14 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Write to spool in.
+	 *
+	 * @param request
+	 *            the request
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private void writeToSpoolIn(HttpServletRequest request) throws IOException
 	{
 		File spoolInFile = new File(storageDir.getAbsolutePath() + "/spoolin/"
@@ -257,6 +301,9 @@ public class WorkerServlet extends HttpServlet
 		fileWriter.close();
 	}
 
+	/**
+	 * Waitfor empty queue.
+	 */
 	private void waitforEmptyQueue()
 	{
 		while (lineQueue.getSize() > 0)
@@ -276,6 +323,9 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.servlet.http.HttpServlet#doGet(javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse)
+	 */
 	public void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws java.io.IOException
 	{
@@ -285,6 +335,9 @@ public class WorkerServlet extends HttpServlet
 		out.println("<body>Hi, I am the worker!</body></html>");
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.servlet.GenericServlet#destroy()
+	 */
 	public void destroy()
 	{
 		if (pingThread != null)
@@ -293,46 +346,100 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Checks if is do map.
+	 *
+	 * @return true, if is do map
+	 */
 	public synchronized boolean isDoMap()
 	{
 		return doMap;
 	}
 
+	/**
+	 * Sets the do map.
+	 *
+	 * @param doMap
+	 *            the new do map
+	 */
 	public synchronized void setDoMap(boolean doMap)
 	{
 		this.doMap = doMap;
 	}
 
+	/**
+	 * Checks if is doreduce.
+	 *
+	 * @return true, if is doreduce
+	 */
 	public synchronized boolean isDoreduce()
 	{
 		return doreduce;
 	}
 
+	/**
+	 * Sets the doreduce.
+	 *
+	 * @param doreduce
+	 *            the new doreduce
+	 */
 	public synchronized void setDoreduce(boolean doreduce)
 	{
 		this.doreduce = doreduce;
 	}
 
+	/**
+	 * Gets the status.
+	 *
+	 * @return the status
+	 */
 	public WorkerStatus getStatus()
 	{
 		return status;
 	}
 
+	/**
+	 * Gets the line queue.
+	 *
+	 * @return the line queue
+	 */
 	public Queue<String> getLineQueue()
 	{
 		return lineQueue;
 	}
 
+	/**
+	 * Gets the current job.
+	 *
+	 * @return the current job
+	 */
 	public Job getCurrentJob()
 	{
 		return currentJob;
 	}
 
+	/**
+	 * Gets the storage dir.
+	 *
+	 * @return the storage dir
+	 */
 	public File getStorageDir()
 	{
 		return storageDir;
 	}
 
+	/**
+	 * Read input.
+	 *
+	 * @param inputDir
+	 *            the input dir
+	 * @param isMap
+	 *            the is map
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 * @throws InterruptedException
+	 *             the interrupted exception
+	 */
 	private void readInput(File inputDir, boolean isMap) throws IOException,
 			InterruptedException
 	{
@@ -425,6 +532,12 @@ public class WorkerServlet extends HttpServlet
 		System.out.println("worker : input queue - " + lineQueue.getQueue());
 	}
 
+	/**
+	 * Start map threads.
+	 *
+	 * @param numThreads
+	 *            the num threads
+	 */
 	private void startMapThreads(int numThreads)
 	{
 		setDoMap(true);
@@ -437,6 +550,12 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Start reduce threads.
+	 *
+	 * @param numThreads
+	 *            the num threads
+	 */
 	private void startReduceThreads(int numThreads)
 	{
 		setDoreduce(true);
@@ -449,6 +568,12 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Wait for threads.
+	 *
+	 * @param isMap
+	 *            the is map
+	 */
 	private void waitForThreads(boolean isMap)
 	{
 		List<Thread> threads;
@@ -482,6 +607,9 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Reset spool directories.
+	 */
 	public void resetSpoolDirectories()
 	{
 		System.out.println("worker : reseting spool directories");
@@ -520,6 +648,9 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Reset output directory.
+	 */
 	public void resetOutputDirectory()
 	{
 		System.out.println("worker : reseting output directory");
@@ -537,6 +668,14 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Send spool out.
+	 *
+	 * @param spoolOutDir
+	 *            the spool out dir
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private void sendSpoolOut(File spoolOutDir) throws IOException
 	{
 		for (File file : spoolOutDir.listFiles())
@@ -574,6 +713,13 @@ public class WorkerServlet extends HttpServlet
 		}
 	}
 
+	/**
+	 * Parses the response.
+	 *
+	 * @return the http response
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public HttpResponse parseResponse() throws IOException
 	{
 		InputStream socketInputStream = socket.getInputStream();
@@ -590,11 +736,13 @@ public class WorkerServlet extends HttpServlet
 	}
 
 	/**
-	 * parses the http response from the server into an HttpResponse object
-	 * 
+	 * parses the http response from the server into an HttpResponse object.
+	 *
 	 * @param in
-	 * @return
+	 *            the in
+	 * @return the http response
 	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public HttpResponse parseResponse(BufferedReader in) throws IOException
 	{
@@ -653,6 +801,15 @@ public class WorkerServlet extends HttpServlet
 		return response;
 	}
 
+	/**
+	 * Read file.
+	 *
+	 * @param file
+	 *            the file
+	 * @return the string
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	private String readFile(File file) throws IOException
 	{
 		FileInputStream fileInputStream = new FileInputStream(file);

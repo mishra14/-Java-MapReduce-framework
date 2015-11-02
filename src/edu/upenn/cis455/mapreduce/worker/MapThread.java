@@ -6,16 +6,27 @@ import edu.upenn.cis455.mapreduce.job.WordCountContext;
 
 /**
  * This is a map thread that is instantiated by the worker servlet to perform
- * the map job on key value inputs
- * 
- * @author cis455
+ * the map job on key value inputs.
  *
+ * @author cis455
  */
 public class MapThread extends Thread
 {
+
+	/** The id. */
 	private int id;
+
+	/** The worker servlet. */
 	private WorkerServlet workerServlet;
 
+	/**
+	 * Instantiates a new map thread.
+	 *
+	 * @param id
+	 *            the id
+	 * @param workerServlet
+	 *            the worker servlet
+	 */
 	public MapThread(int id, WorkerServlet workerServlet)
 	{
 		super();
@@ -23,6 +34,9 @@ public class MapThread extends Thread
 		this.workerServlet = workerServlet;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	public void run()
 	{
 		System.out.println("worker map thread " + id + " : started");

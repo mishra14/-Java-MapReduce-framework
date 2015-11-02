@@ -14,23 +14,39 @@ import java.util.List;
 import java.util.Map;
 
 import edu.upenn.cis455.mapreduce.master.WorkerStatus;
-import edu.upenn.cis455.mapreduce.master.WorkerStatus.statusType;
 
 /**
  * This class is used to instantiate a pinger thread used by the worker servlet
- * to send status updates to the master
- * 
- * @author cis455
+ * to send status updates to the master.
  *
+ * @author cis455
  */
 public class PingThread extends Thread
 {
+
+	/** The master url. */
 	private URL masterUrl;
+
+	/** The socket. */
 	private Socket socket;
+
+	/** The self port. */
 	private String selfPort;
+
+	/** The worker status. */
 	private WorkerStatus workerStatus;
+
+	/** The run. */
 	private boolean run;
 
+	/**
+	 * Instantiates a new ping thread.
+	 *
+	 * @param url
+	 *            the url
+	 * @param status
+	 *            the status
+	 */
 	public PingThread(URL url, WorkerStatus status)
 	{
 		this.masterUrl = url;
@@ -39,6 +55,9 @@ public class PingThread extends Thread
 		this.run = true;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	public void run()
 	{
 		while (run)
@@ -73,6 +92,13 @@ public class PingThread extends Thread
 		}
 	}
 
+	/**
+	 * Send ping.
+	 *
+	 * @return the http response
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	/*
 	 * http://localhost:8080/master/workerstatus?port=8081&status=idle&keysread=10&keyswritten=5&job=classes
 	 */
@@ -101,6 +127,13 @@ public class PingThread extends Thread
 		return parseResponse();
 	}
 
+	/**
+	 * Parses the response.
+	 *
+	 * @return the http response
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	public HttpResponse parseResponse() throws IOException
 	{
 		InputStream socketInputStream = socket.getInputStream();
@@ -117,11 +150,13 @@ public class PingThread extends Thread
 	}
 
 	/**
-	 * parses the http response from the server into an HttpResponse object
-	 * 
+	 * parses the http response from the server into an HttpResponse object.
+	 *
 	 * @param in
-	 * @return
+	 *            the in
+	 * @return the http response
 	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
 	 */
 	public HttpResponse parseResponse(BufferedReader in) throws IOException
 	{
@@ -180,6 +215,9 @@ public class PingThread extends Thread
 		return response;
 	}
 
+	/**
+	 * Terminate.
+	 */
 	public void terminate()
 	{
 		run = false;

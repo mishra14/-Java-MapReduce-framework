@@ -6,17 +6,28 @@ import edu.upenn.cis455.mapreduce.job.WordCountContext;
 
 /**
  * This is a reduce thread that is instantiated by the worker servlet to perform
- * the reduce job on key value inputs
- * 
- * @author cis455
+ * the reduce job on key value inputs.
  *
+ * @author cis455
  */
 
 public class ReduceThread extends Thread
 {
+
+	/** The id. */
 	private int id;
+
+	/** The worker servlet. */
 	private WorkerServlet workerServlet;
 
+	/**
+	 * Instantiates a new reduce thread.
+	 *
+	 * @param id
+	 *            the id
+	 * @param workerServlet
+	 *            the worker servlet
+	 */
 	public ReduceThread(int id, WorkerServlet workerServlet)
 	{
 		super();
@@ -24,6 +35,9 @@ public class ReduceThread extends Thread
 		this.workerServlet = workerServlet;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Thread#run()
+	 */
 	public void run()
 	{
 		System.out.println("worker reduce thread " + id + " : started");
